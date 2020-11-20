@@ -1,0 +1,47 @@
+runs:
+1. no inline in code-03- always-inline flag
+2. no inline in code-03- without always inline flag
+3. no inline in code-00-always-inline flag
+
+Static functions are agressively inlined in higher levels of optimization.
+inlining reduces the chances of register spilling.
+Always use pointers rather than array based indexing for better performance.
+32 is the ideal threshold.
+Results:
+Run1: without any optimization:
+#elements  Random     Inverted
+2^17-1     0.073359   0.104107
+2^17       0.069537   0.099195
+2^17+1    0.070487    0.100606
+
+Run2: same as above. Compiler inlines all the code on higher levels of optimization. checked it through assembly.
+Unless optimized at -O0. non deterministic behavior
+
+Run3: using pointer arithmetic instead of array based indexing
+#elements  Random     Inverted
+2^17-1    0.068704    0.096794
+2^17      0.068799    0.096604 
+2^17+1    0.067727    0.095253
+
+Run4: Coarsening 32. Threshold of 32 works best (tested).
+Below that, more function calls. More than that, expensive insertion sort.
+
+#elements  Random     Inverted
+2^17-1   0.046077   0.058864
+2^17     0.042041  0.054359
+2^17+1    0.039987    0.052311 
+
+Run5: Reducing memory usage. using the orginal array as scratch space. 
+
+#elements  Random     Inverted
+2^17-1   0.039413   0.050282
+2^17     0.040063  0.051203
+2^17+1    0.038297    0.049160
+
+
+Run6: Allocating only once. No perceptible improvement in performance. Either somethingw wrong with the implementation or some other issue.
+
+#elements  Random     Inverted
+2^17-1   0.053862   0.064524
+2^17     0.041679  0.052054
+2^17+1    0.041785    0.052202
